@@ -1,0 +1,4 @@
+Jetson.GPIO==2.1.9
+pillow==11.1.0
+psutil==7.0.0
+-e git+https://github.com/waveshare/e-Paper.git@179570ba2b6ea1a8542acdb072ddbcb3893fdf87#egg=waveshare_epd&subdirectory=RaspberryPi_JetsonNano/python

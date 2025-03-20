@@ -1,0 +1,22 @@
+# Python virtual environment
+epaper-env/
+venv/
+env/
+
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# IDE settings
+.vscode/
+.idea/
+
+# Local configuration
+backup.sh
+*.log
