@@ -16,16 +16,13 @@ This repository contains the code for the SnapSync E-Paper display system, which
 - Raspberry Pi (tested on Raspberry Pi 4)
 - Waveshare 4.2" e-Paper display (V2)
 - Python 3.7+
-- Required fonts:
-  - DotMatrixTwoExtended.ttf (included)
-  - Perfect_DOS_VGA_437.ttf (download required)
+- Required fonts (included in repository):
+  - DotMatrixTwoExtended.ttf
+  - Perfect_DOS_VGA_437.ttf
 - Two backup drives (BK0 and BK1)
 - SSH access to backup sources
-- Required Python packages (install in virtual environment):
-  - Pillow
-  - psutil
 
-## Installation
+## Quick Installation
 
 1. Clone the repository:
 ```bash
@@ -33,19 +30,45 @@ git clone https://github.com/Quackieduckie/SnapSync.git
 cd SnapSync/epaper
 ```
 
-2. Set up Python virtual environment:
+2. Run the setup script:
+```bash
+sudo ./setup.py
+```
+
+The setup script will:
+- Set up Python virtual environment with required packages
+- Configure backup sources and paths
+- Set up SSH keys for remote backup
+- Create and enable the systemd service
+- Optionally set up a daily backup cron job
+
+## Manual Installation
+If you prefer to set up components manually, follow these steps:
+
+1. Set up Python virtual environment:
 ```bash
 python3 -m venv epaper-env
 source epaper-env/bin/activate
 pip install Pillow psutil
 ```
 
-3. Configure systemd service:
+2. Configure backup sources:
+```bash
+python configure_backup.py
+```
+
+3. Set up SSH keys:
+```bash
+ssh-keygen -t ed25519 -C "snapsync"
+ssh-copy-id -i ~/.ssh/id_ed25519.pub user@host
+```
+
+4. Create systemd service:
 ```bash
 sudo nano /etc/systemd/system/system_stats.service
 ```
 
-Add the following content:
+Add the following content (adjust paths as needed):
 ```ini
 [Unit]
 Description=E-Paper System Stats
@@ -62,56 +85,12 @@ Restart=always
 WantedBy=multi-user.target
 ```
 
-4. Enable and start the service:
+5. Enable and start service:
 ```bash
 sudo systemctl daemon-reload
 sudo systemctl enable system_stats.service
 sudo systemctl start system_stats.service
 ```
-
-## Configuration
-1. Configure the backup system:
-```bash
-python configure_backup.py
-```
-This will guide you through setting up:
-- Backup source servers
-- Backup paths
-- Status file location
-
-2. Set up SSH keys for remote servers:
-```bash
-ssh-keygen -t ed25519 -C "snapsync"
-ssh-copy-id -i ~/.ssh/id_ed25519.pub user@host
-```
-
-3. Set up cron job (optional):
-```bash
-# Edit crontab
-crontab -e
-
-# Add line for daily backup (e.g., at 2 AM)
-0 2 * * * /path/to/backup.sh
-```
-
-## Usage
-```bash
-# Run the display script
-python system_stats_v8.2.py
-```
-
-## Display Configuration
-- Backup status file path: `/home/pi/backup_status.txt`
-- Update interval: 30 seconds
-- Partial refresh limit: 20 updates before full refresh
-
-## Notes
-- The script requires root access to read CPU temperature
-- Make sure the e-Paper display is properly connected to the Raspberry Pi
-- The display updates every 30 seconds to minimize wear on the e-Paper display
-- Fonts are now loaded from the local `fonts` directory
-- BK1 is mounted read-only by default and only remounted rw during backup
-- Backup status messages are kept short to fit the display
 
 ## Service Management
 
@@ -120,11 +99,35 @@ python system_stats_v8.2.py
 - Start service: `sudo systemctl start system_stats.service`
 - View logs: `sudo journalctl -u system_stats.service`
 
+## Backup Configuration
+
+The backup configuration is stored in `backup_config.json` with the following structure:
+```json
+{
+    "backup_sources": [
+        {
+            "name": "laptop",
+            "user": "username",
+            "host": "192.168.1.100",
+            "port": "22",
+            "path": "/path/to/backup"
+        }
+    ],
+    "bk0_path": "/mnt/bk0",
+    "bk1_path": "/mnt/bk1",
+    "status_file": "/home/pi/backup_status.txt"
+}
+```
+
 ## Directory Structure
 
 - `system_stats_v8.2.py`: Main display script
+- `setup.py`: Installation and configuration script
+- `configure_backup.py`: Backup configuration utility
 - `fonts/`: Contains required font files
 - `e-Paper/`: Waveshare e-Paper display driver (submodule)
+- `backup_config.json`: Backup configuration file
+- `backup.sh`: Generated backup script
 
 ## License
 
