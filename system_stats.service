@@ -1,0 +1,15 @@
+[Unit]
+Description=SnapSync E-Paper Display Service
+After=network.target
+
+[Service]
+Type=simple
+User=root
+Environment=PYTHONPATH=/home/pi/SnapSync/epaper/e-Paper/RaspberryPi_JetsonNano/python/lib
+WorkingDirectory=/home/pi/SnapSync/epaper
+ExecStart=/usr/bin/python3 system_stats_v8.3.py
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target 
